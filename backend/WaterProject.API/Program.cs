@@ -16,7 +16,7 @@ builder.Services.AddDbContext<WaterDbContext>(options =>
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactAppBlah",
     policy => {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "https://icy-tree-07eb87c1e.7.azurestaticapps.net")
             .AllowAnyMethod()
             .AllowAnyHeader();
     }));
@@ -30,9 +30,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowReactAppBlah");
-
 app.UseHttpsRedirection();
+
+app.UseCors("AllowReactAppBlah");
 
 app.UseAuthorization();
 
