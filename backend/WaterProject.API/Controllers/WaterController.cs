@@ -9,14 +9,14 @@ namespace WaterProject.API.Controllers
     public class WaterController : ControllerBase
     {
         private WaterDbContext _waterContext;
-        
+
         public WaterController(WaterDbContext temp)
         {
             _waterContext = temp;
         }
 
         [HttpGet("AllProjects")]
-        public IActionResult GetProjects(int pageSize = 10, int pageNum = 1, [FromQuery] List<string>? projectTypes =  null)
+        public IActionResult GetProjects(int pageSize = 10, int pageNum = 1, [FromQuery] List<string>? projectTypes = null)
         {
             var query = _waterContext.Projects.AsQueryable();
 
@@ -26,12 +26,12 @@ namespace WaterProject.API.Controllers
             }
 
             var totalNumProjects = query.Count();
-            
+
             var something = query
                 .Skip((pageNum - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-            
+
 
             var someObject = new
             {
@@ -41,7 +41,7 @@ namespace WaterProject.API.Controllers
 
             return Ok(someObject);
         }
-    
+
         [HttpGet("GetProjectTypes")]
         public IActionResult GetProjectTypes()
         {
@@ -49,9 +49,50 @@ namespace WaterProject.API.Controllers
                 .Select(p => p.ProjectType)
                 .Distinct()
                 .ToList();
-            
+
             return Ok(projectTypes);
         }
 
+        [HttpPost("AddProject")] // Post so that it saves to the database
+        public IActionResult AddProject([FromBody] Project newProject) // Add a Project (of project type from the Project.cs file in the data folder) and refer to it as newProject
+        {
+            _waterContext.Projects.Add(newProject);
+            _waterContext.SaveChanges();
+            return Ok(newProject);
+        }
+
+        [HttpPut("UpdateProject/{projectId}")]
+        public IActionResult UpdateProject(int projectId, [FromBody] Project updatedProject)
+        {
+            var existingProject = _waterContext.Projects.Find(projectId);
+
+            existingProject.ProjectName = updatedProject.ProjectName;
+            existingProject.ProjectType = updatedProject.ProjectType;
+            existingProject.ProjectRegionalProgram = updatedProject.ProjectRegionalProgram;
+            existingProject.ProjectImpact = updatedProject.ProjectImpact;
+            existingProject.ProjectPhase = updatedProject.ProjectPhase;
+            existingProject.ProjectFunctionalityStatus = updatedProject.ProjectFunctionalityStatus;
+
+            _waterContext.Projects.Update(existingProject);
+            _waterContext.SaveChanges();
+
+            return Ok(updatedProject);
+        }
+
+        [HttpDelete("DeleteProject/{projectId}")]
+        public IActionResult DeleteProject(int projectId)
+        {
+            var project = _waterContext.Projects.Find(projectId);
+
+            if (project == null)
+            {
+                return NotFound(new { message = "Project not found" });
+            }
+
+            _waterContext.Projects.Remove(project);
+            _waterContext.SaveChanges();
+
+            return NoContent(); // means that it (the delete) was successful, we are not returning the project since it was deleted so we just return this instead which means it was successful
+        }
     }
 }
