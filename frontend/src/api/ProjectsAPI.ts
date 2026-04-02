@@ -6,7 +6,7 @@ interface FetchProjectsResponse {
 }
 
 const API_URL =
-  'https://waterproject-springer-backend-gxeheugvcuhgetgx.francecentral-01.azurewebsites.net/Water';
+  'https://waterproject-springer-backend-gxeheugvcuhgetgx.francecentral-01.azurewebsites.net';
 
 export const fetchProjects = async (
   // These three things are the parameters
